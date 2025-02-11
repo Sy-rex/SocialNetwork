@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 public class UserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public UserDetailService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserDetailService(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
 
     public Optional<User> findByUsername(String username){
@@ -44,7 +44,7 @@ public class UserDetailService implements UserDetailsService {
     }
 
     public void createNewUser(User user) {
-        user.setRoles(List.of(roleRepository.findByName("ROLE_USER").get()));
+        user.setRoles(List.of(roleService.findRoleByName("ROLE_USER")));
         userRepository.save(user);
     }
 }

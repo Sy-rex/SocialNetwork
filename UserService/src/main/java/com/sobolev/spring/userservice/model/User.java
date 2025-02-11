@@ -2,7 +2,6 @@ package com.sobolev.spring.userservice.model;
 
 import jakarta.persistence.*;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Collection<Role> roles;
+    private List<Role> roles;
 
     public User() {
     }
@@ -101,11 +100,11 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public Collection<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Collection<Role> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 }
