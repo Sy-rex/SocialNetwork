@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -53,6 +54,18 @@ public class JwtTokenUtils {
 
     public String getUsernameFromToken(String token) {
         return JWT.decode(token).getSubject();
+    }
+
+    public Long getExpirationDateFromToken(String token) {
+        return JWT.decode(token).getClaim("exp").asLong();
+    }
+
+    public String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 
     public String validateTokenAndRetrieveClaim(String token) throws JWTVerificationException {

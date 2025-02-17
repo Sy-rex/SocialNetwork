@@ -7,9 +7,11 @@ import com.sobolev.spring.userservice.exception.AppError;
 import com.sobolev.spring.userservice.model.User;
 import com.sobolev.spring.userservice.security.JwtTokenUtils;
 import com.sobolev.spring.userservice.config.*;
+import com.sobolev.spring.userservice.service.JwtBlacklistService;
 import com.sobolev.spring.userservice.service.RegistrationService;
 import com.sobolev.spring.userservice.service.UserDetailService;
 import com.sobolev.spring.userservice.util.UserValidator;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,19 +40,22 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final RegistrationService registrationService;
     private final UserValidator userValidator;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Autowired
     public AuthController(UserDetailService userDetailService, JwtTokenUtils jwtTokenUtils,
                           AuthenticationManager authenticationManager,
                           ModelMapper modelMapper,
                           RegistrationService registrationService,
-                          UserValidator userValidator) {
+                          UserValidator userValidator,
+                          JwtBlacklistService jwtBlacklistService) {
         this.userDetailService = userDetailService;
         this.jwtTokenUtils = jwtTokenUtils;
         this.authenticationManager = authenticationManager;
         this.modelMapper = modelMapper;
         this.registrationService = registrationService;
         this.userValidator = userValidator;
+        this.jwtBlacklistService = jwtBlacklistService;
     }
 
     @PostMapping("/registration")
@@ -82,7 +87,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AppError(HttpStatus.UNAUTHORIZED.value(), "Неправильный логин или пароль"));
+                    .body(Map.of("message", "Неправильный логин или пароль"));
         }
 
         UserDetails userDetails = userDetailService.loadUserByUsername(authRequest.getUsername());
@@ -93,5 +98,21 @@ public class AuthController {
 
     private User convertToUser(RegistrationUserDTO userDTO) {
         return modelMapper.map(userDTO, User.class);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = jwtTokenUtils.extractToken(request);
+
+        if (token != null) {
+
+            long expiration = jwtTokenUtils.getExpirationDateFromToken(token);
+            long currentTimeMillis = System.currentTimeMillis() / 1000;
+            long remainingTime = (expiration - currentTimeMillis) * 1000;
+
+            jwtBlacklistService.addToBlacklist(token, remainingTime);
+        }
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 }
