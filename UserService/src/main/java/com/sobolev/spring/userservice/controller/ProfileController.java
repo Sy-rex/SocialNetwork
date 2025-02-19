@@ -5,6 +5,7 @@ import com.sobolev.spring.userservice.dto.ProfileResponseDTO;
 import com.sobolev.spring.userservice.model.User;
 import com.sobolev.spring.userservice.security.JwtTokenUtils;
 import com.sobolev.spring.userservice.service.UserDetailService;
+import com.sobolev.spring.userservice.service.UserService;
 import com.sobolev.spring.userservice.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,19 +23,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
-    private final UserDetailService userDetailService;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
     private final UserValidator userValidator;
     private final JwtTokenUtils jwtTokenUtils;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ProfileController(UserDetailService userDetailService,
-                             PasswordEncoder passwordEncoder,
+    public ProfileController(UserService userService,
                              UserValidator userValidator,
                              JwtTokenUtils jwtTokenUtils, ModelMapper modelMapper) {
-        this.userDetailService = userDetailService;
-        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
         this.userValidator = userValidator;
         this.jwtTokenUtils = jwtTokenUtils;
         this.modelMapper = modelMapper;
@@ -45,7 +43,7 @@ public class ProfileController {
         String token = jwtTokenUtils.extractToken(request);
         String user = jwtTokenUtils.getUsernameFromToken(token);
         if (user != null) {
-            Optional<User> userDetail = userDetailService.findByUsername(user);
+            Optional<User> userDetail = userService.findByUsername(user);
 
             if (userDetail.isPresent())
                 return ResponseEntity.ok(convertFromUser(userDetail.get()));
@@ -57,7 +55,7 @@ public class ProfileController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfileById(@PathVariable("id") Integer id) {
-        Optional<User> userDetail = userDetailService.findById(id);
+        Optional<User> userDetail = userService.findById(id);
         if (userDetail.isPresent()) {
             return ResponseEntity.ok(convertFromUser(userDetail.get()));
         }
@@ -69,7 +67,7 @@ public class ProfileController {
                                                 @RequestBody @Valid ProfileResponseDTO profileResponseDTO) {
         String username = jwtTokenUtils.getUsernameFromToken(jwtTokenUtils.extractToken(request));
         if (username != null) {
-            userDetailService.updateUser(username, profileResponseDTO);
+            userService.updateUser(username, profileResponseDTO);
             return ResponseEntity.ok("Profile updated successfully");
         }
         return ResponseEntity.badRequest().body("Problem with token");
@@ -79,7 +77,7 @@ public class ProfileController {
     public ResponseEntity<String> deleteProfile(HttpServletRequest request){
         String username = jwtTokenUtils.getUsernameFromToken(jwtTokenUtils.extractToken(request));
         if (username != null) {
-            userDetailService.deleteUser(username);
+            userService.deleteUser(username);
             return ResponseEntity.ok("Profile deleted successfully");
         }
         return ResponseEntity.badRequest().body("Problem with token");
@@ -92,7 +90,7 @@ public class ProfileController {
         String username = jwtTokenUtils.getUsernameFromToken(jwtTokenUtils.extractToken(request));
         if (username != null) {
 //            сделать валидатор
-            userDetailService.changePassword(changePasswordDTO, username);
+            userService.changePassword(changePasswordDTO, username);
             return ResponseEntity.ok("Password changed successfully");
         }
         return ResponseEntity.badRequest().body("Problem with token");
