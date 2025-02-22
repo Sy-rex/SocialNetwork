@@ -3,6 +3,7 @@ package com.sobolev.spring.userservice.util;
 import com.sobolev.spring.userservice.model.User;
 import com.sobolev.spring.userservice.service.UserDetailService;
 import com.sobolev.spring.userservice.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,14 +12,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
+@RequiredArgsConstructor
 public class UserValidator implements Validator {
 
     private final UserService userService;
-
-    @Autowired
-    public UserValidator(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public boolean supports(Class<?> clazz) {

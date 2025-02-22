@@ -4,6 +4,7 @@ import com.sobolev.spring.userservice.dto.ChangePasswordDTO;
 import com.sobolev.spring.userservice.dto.ProfileResponseDTO;
 import com.sobolev.spring.userservice.model.User;
 import com.sobolev.spring.userservice.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,20 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository,
-                       RoleService roleService,
-                       PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public Optional<User> findByUsername(String username){
         return userRepository.findByUsername(username);

@@ -9,6 +9,7 @@ import com.sobolev.spring.userservice.service.UserService;
 import com.sobolev.spring.userservice.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,22 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/profile")
 public class ProfileController {
     private final UserService userService;
     private final UserValidator userValidator;
     private final JwtTokenUtils jwtTokenUtils;
     private final ModelMapper modelMapper;
-
-    @Autowired
-    public ProfileController(UserService userService,
-                             UserValidator userValidator,
-                             JwtTokenUtils jwtTokenUtils, ModelMapper modelMapper) {
-        this.userService = userService;
-        this.userValidator = userValidator;
-        this.jwtTokenUtils = jwtTokenUtils;
-        this.modelMapper = modelMapper;
-    }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {

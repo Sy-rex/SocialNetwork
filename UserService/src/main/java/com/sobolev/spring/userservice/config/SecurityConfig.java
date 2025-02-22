@@ -1,5 +1,6 @@
 package com.sobolev.spring.userservice.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationalFilter jwtAuthenticationalFilter;
     private final UserDetailsService userDetailsService;
-
-    @Autowired
-    public SecurityConfig(JwtAuthenticationalFilter jwtAuthenticationalFilter,
-                          UserDetailsService userDetailsService){
-        this.jwtAuthenticationalFilter = jwtAuthenticationalFilter;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

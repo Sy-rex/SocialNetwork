@@ -5,6 +5,7 @@ import com.sobolev.spring.userservice.service.MinioService;
 import com.sobolev.spring.userservice.service.UserDetailService;
 import com.sobolev.spring.userservice.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -17,21 +18,13 @@ import java.io.FileInputStream;
 import java.security.Principal;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/profile/picture")
 public class ProfilePictureController {
 
     private final MinioService minioService;
     private final UserService userService;
     private final JwtTokenUtils jwtTokenUtils;
-
-    @Autowired
-    public ProfilePictureController(MinioService minioService,
-                                    UserService userService,
-                                    JwtTokenUtils jwtTokenUtils) {
-        this.minioService = minioService;
-        this.userService = userService;
-        this.jwtTokenUtils = jwtTokenUtils;
-    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadProfilePicture(@RequestParam("file") MultipartFile file,

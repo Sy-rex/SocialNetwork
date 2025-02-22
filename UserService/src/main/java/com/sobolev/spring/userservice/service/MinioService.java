@@ -3,6 +3,7 @@ package com.sobolev.spring.userservice.service;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import io.minio.http.Method;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;

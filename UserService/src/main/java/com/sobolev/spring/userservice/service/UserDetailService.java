@@ -6,6 +6,7 @@ import com.sobolev.spring.userservice.model.User;
 import com.sobolev.spring.userservice.repository.RoleRepository;
 import com.sobolev.spring.userservice.repository.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,14 +21,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserDetailService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     private Optional<User> findByUsername(String username){
         return userRepository.findByUsername(username);

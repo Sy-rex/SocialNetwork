@@ -13,6 +13,7 @@ import com.sobolev.spring.userservice.service.UserDetailService;
 import com.sobolev.spring.userservice.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -41,22 +43,6 @@ public class AuthController {
     private final RegistrationService registrationService;
     private final UserValidator userValidator;
     private final JwtBlacklistService jwtBlacklistService;
-
-    @Autowired
-    public AuthController(UserDetailService userDetailService, JwtTokenUtils jwtTokenUtils,
-                          AuthenticationManager authenticationManager,
-                          ModelMapper modelMapper,
-                          RegistrationService registrationService,
-                          UserValidator userValidator,
-                          JwtBlacklistService jwtBlacklistService) {
-        this.userDetailService = userDetailService;
-        this.jwtTokenUtils = jwtTokenUtils;
-        this.authenticationManager = authenticationManager;
-        this.modelMapper = modelMapper;
-        this.registrationService = registrationService;
-        this.userValidator = userValidator;
-        this.jwtBlacklistService = jwtBlacklistService;
-    }
 
     @PostMapping("/registration")
     public ResponseEntity<?> register(@Valid @RequestBody RegistrationUserDTO userDTO, BindingResult bindingResult) {
