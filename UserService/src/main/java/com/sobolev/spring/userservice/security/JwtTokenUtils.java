@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.sobolev.spring.userservice.service.UserDetailService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,12 +24,14 @@ import java.util.stream.Collectors;
 public class JwtTokenUtils {
     private final String secret;
     private final Duration lifetime;
+    private final UserDetailService userDetailService;
 
     public JwtTokenUtils(
             @Value("${jwt_secret}") String secret,
-            @Value("${jwt_lifetime}") Duration lifetime) {
+            @Value("${jwt_lifetime}") Duration lifetime, UserDetailService userDetailService) {
         this.secret = secret;
         this.lifetime = lifetime;
+        this.userDetailService = userDetailService;
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -75,5 +78,24 @@ public class JwtTokenUtils {
 
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
+                    .withIssuer("sobolev")
+                    .build();
+            verifier.verify(token);
+            return true;
+        } catch (JWTVerificationException e) {
+            return false;
+        }
+    }
+
+    public String refreshToken(String oldToken) {
+        String username = getUsernameFromToken(oldToken);
+        UserDetails userDetails = userDetailService.loadUserByUsername(username);
+
+        return generateToken(userDetails);
     }
 }

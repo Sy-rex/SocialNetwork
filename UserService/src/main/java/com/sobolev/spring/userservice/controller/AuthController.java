@@ -101,4 +101,17 @@ public class AuthController {
 
         return ResponseEntity.ok("Logged out successfully");
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        String oldToken = jwtTokenUtils.extractToken(request);
+        if (oldToken == null || jwtBlacklistService.isBlacklisted(oldToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid token"));
+        }
+        if (!jwtTokenUtils.validateToken(oldToken)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Token expired"));
+        }
+
+        return ResponseEntity.ok(new JwtResponse(jwtTokenUtils.refreshToken(oldToken)));
+    }
 }

@@ -1,5 +1,6 @@
 package com.sobolev.spring.userservice.controller;
 
+import com.sobolev.spring.userservice.dto.ProfilePictureResponse;
 import com.sobolev.spring.userservice.security.JwtTokenUtils;
 import com.sobolev.spring.userservice.service.MinioService;
 import com.sobolev.spring.userservice.service.UserDetailService;
@@ -47,21 +48,10 @@ public class ProfilePictureController {
     }
 
     @GetMapping
-    public ResponseEntity<InputStreamResource> getProfilePicture(HttpServletRequest request) {
+    public ResponseEntity<?> getProfilePicture(HttpServletRequest request) {
         String username = jwtTokenUtils.getUsernameFromToken(jwtTokenUtils.extractToken(request));
 
         String fileUrl = userService.getProfilePictureUrl(username);
-        System.out.println(fileUrl);
-
-        try{
-            InputStreamResource inputStreamResource = minioService.downloadProfilePicture(fileUrl);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .body(inputStreamResource);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity.ok(new ProfilePictureResponse(fileUrl));
     }
 }
