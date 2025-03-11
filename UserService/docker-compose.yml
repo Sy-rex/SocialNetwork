@@ -28,6 +28,20 @@ services:
       - /mnt/hdd/minio/data:/export
       - /mnt/hdd/minio/config:/root/.minio
 
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_container
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo123
+    volumes:
+      - mongo_data:/data/db
+
 volumes:
   redis_data:
+    driver: local
+  mongo_data:
     driver: local
