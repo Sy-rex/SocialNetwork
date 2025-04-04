@@ -1,3 +1,5 @@
+package com.sobolev.spring.chatservice.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,17 +17,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Разрешаем только установление WebSocket-соединения без аутентификации
-                        .requestMatchers("/ws/**").permitAll()
-
-                        // Все остальные операции требуют аутентификации
-                        .requestMatchers(
-                                "/app/**",
-                                "/topic/private/**",
-                                "/user/**",
-                                "/chat/**"
-                        ).authenticated()
-
+                        .requestMatchers("/ws/**").permitAll() // Handshake is handled by interceptor
+                        .requestMatchers("/app/**", "/topic/**", "/user/**", "/chat/**").authenticated()
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(session ->
