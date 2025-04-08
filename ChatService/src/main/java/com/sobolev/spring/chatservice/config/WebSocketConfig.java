@@ -14,6 +14,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+    private final AuthChannelInterceptorAdapter authChannelInterceptorAdapter;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -21,7 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .addInterceptors(jwtHandshakeInterceptor)
                 .setAllowedOriginPatterns("*")
                 .withSockJS()
-                .setSuppressCors(true);
+                .setSuppressCors(false);
     }
 
     @Override
@@ -33,5 +34,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         );
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
+    }
+
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(authChannelInterceptorAdapter);
     }
 }

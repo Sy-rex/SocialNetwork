@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
@@ -26,14 +28,24 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
+        System.out.println("Handshake started");
         String token = extractToken(request);
+        System.out.println("Extracted token: " + token);
 
         if (token == null || !isTokenValid(token)) {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         }
 
-        attributes.put("username", jwtTokenUtils.getUsernameFromToken(token));
+        System.out.println("token is valid");
+        String username = jwtTokenUtils.getUsernameFromToken(token);
+        System.out.println("username is " + username);
+        attributes.put("username", username);
+
+        Authentication authentication = jwtTokenUtils.getAuthentication(token);
+        System.out.println("authentication is " + authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         return true;
     }
 
@@ -43,6 +55,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     private String extractToken(ServerHttpRequest request) {
+        System.out.println("Request URI: " + request.getURI());
+
         // Check Authorization header
         List<String> authHeaders = request.getHeaders().get("Authorization");
         if (authHeaders != null && !authHeaders.isEmpty()) {

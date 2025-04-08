@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat Test</title>
+</head>
+<body>
+<h2>WebSocket Chat Test</h2>
+<div>
+    <input type="text" id="receiver" placeholder="Receiver username">
+    <input type="text" id="message" placeholder="Message">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<ul id="chat"></ul>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script>
+    const jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKb2JpIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTc0NDExMTg5MCwiZXhwIjoxNzQ0MTEzNjkwLCJpc3MiOiJzb2JvbGV2In0.mIKzbyHWwlRGRQAQxHj2Bych_SrA4FuNTwIhW5IK0wY'; // ⬅️ Подставь сюда валидный JWT
+
+    // Передаем токен как параметр в URL
+    const socket = new SockJS('http://localhost:8090/ws?token=' + encodeURIComponent(jwtToken));
+
+    const stompClient = Stomp.over(socket);
+
+    // Соединение без необходимости передачи заголовков
+    stompClient.connect(
+        {},
+        function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/private.Jobi', function (message) {
+                const msg = JSON.parse(message.body);
+                showMessage(msg.sender + ': ' + msg.content);
+            });
+        },
+        function (error) {
+            console.error('STOMP connection error:', error);
+        }
+    );
+
+    function sendMessage() {
+        const receiver = document.getElementById('receiver').value;
+        const content = document.getElementById('message').value;
+
+        stompClient.send("/app/sendMessage", {}, JSON.stringify({
+            receiver: receiver,
+            content: content
+        }));
+
+        showMessage("You: " + content);
+    }
+
+    function showMessage(message) {
+        const chat = document.getElementById("chat");
+        const li = document.createElement("li");
+        li.appendChild(document.createTextNode(message));
+        chat.appendChild(li);
+    }
+</script>
+</body>
+</html>
